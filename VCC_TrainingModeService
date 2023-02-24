@@ -1,0 +1,321 @@
+/** * VCC_TrainingModeService * @description Shared services for working with VCC Org Settings. * @author Liberty * @date 12/1/2021 */public without sharing class VCC_TrainingModeService {
+    private static final VCC_AccountDomain accountDomain = new VCC_AccountDomain();
+    private static final VCC_TrainingModeDataDomain trainingModeDataDomain = new VCC_TrainingModeDataDomain();
+    // isValidEsigBase    public static String isValidEsigBase() {
+        return '{"textTO":{"text":"True"}}';
+    }
+    // signNoteBase    public static String signNoteBase() {
+        return '{"textTO":{"text":"OK"}}';
+    }
+    // writeNoteBase    public static String writeNoteBase() {
+        return '{"noteResultTO":{"id":"1815551","totalPages":1,"lastPageRecd":1}}';
+    }
+    // Allergies    public static String getAllergiesByAccountId(String accountId) {
+        if (String.isBlank(accountId)) {
+            return null;
+        }
+        try {
+            for (VCC_Training_Mode_Data__c trainingModeData : new VCC_TrainingModeDataSelector().selectByAccountId(new Set<Id>{
+                accountId            })) {
+                if (trainingModeData.Type__c.equalsIgnoreCase('Allergies')) {
+                    return trainingModeData.Data__c;
+                }
+            }
+        } catch (Exception e) {
+            log_LogService.log('VCC_TrainingModeService.getAllergiesByAccountId()', log_LogService.LogType.ERROR, e);
+        } finally {
+            log_LogService.publish();
+        }
+        return null;
+    }
+    // Appointments    public static String getAppointmentsByAccountId(String accountId) {
+        if (String.isBlank(accountId)) {
+            return null;
+        }
+        for (VCC_Training_Mode_Data__c trainingModeData : new VCC_TrainingModeDataSelector().selectByAccountId(new Set<Id>{
+            accountId        })) {
+            if (trainingModeData.Type__c.equalsIgnoreCase('Appointments')) {
+                return trainingModeData.Data__c;
+            }
+        }
+        return null;
+    }
+    // Consults    public static String getConsultsByAccountId(String accountId) {
+        if (String.isBlank(accountId)) {
+            return null;
+        }
+        for (VCC_Training_Mode_Data__c trainingModeData : new VCC_TrainingModeDataSelector().selectByAccountId(new Set<Id>{
+            accountId        })) {
+            if (trainingModeData.Type__c.equalsIgnoreCase('Consults')) {
+                return trainingModeData.Data__c;
+            }
+        }
+        return null;
+    }
+    // Discharge Summaries    public static String getDischargeSummariesByAccountId(String accountId) {
+        if (String.isBlank(accountId)) {
+            return null;
+        }
+        for (VCC_Training_Mode_Data__c trainingModeData : new VCC_TrainingModeDataSelector().selectByAccountId(new Set<Id>{
+            accountId        })) {
+            if (trainingModeData.Type__c.equalsIgnoreCase('Discharge Summaries')) {
+                return trainingModeData.Data__c;
+            }
+        }
+        return null;
+    }
+    // Flags    public static String getFlagsByAccountId(String accountId) {
+        if (String.isBlank(accountId)) {
+            return null;
+        }
+        for (VCC_Training_Mode_Data__c trainingModeData : new VCC_TrainingModeDataSelector().selectByAccountId(new Set<Id>{
+            accountId        })) {
+            if (trainingModeData.Type__c.equalsIgnoreCase('Flags')) {
+                return trainingModeData.Data__c;
+            }
+        }
+        return null;
+    }
+    // Imaging    public static String getImagingByAccountId(String accountId) {
+        if (String.isBlank(accountId)) {
+            return null;
+        }
+        for (VCC_Training_Mode_Data__c trainingModeData : new VCC_TrainingModeDataSelector().selectByAccountId(new Set<Id>{
+            accountId        })) {
+            if (trainingModeData.Type__c.equalsIgnoreCase('Imaging')) {
+                return trainingModeData.Data__c;
+            }
+        }
+        return null;
+    }
+    // Immunizations    public static String getImmunizationsByAccountId(String accountId) {
+        if (String.isBlank(accountId)) {
+            return null;
+        }
+        for (VCC_Training_Mode_Data__c trainingModeData : new VCC_TrainingModeDataSelector().selectByAccountId(new Set<Id>{
+            accountId        })) {
+            if (trainingModeData.Type__c.equalsIgnoreCase('Immunizations')) {
+                return trainingModeData.Data__c;
+            }
+        }
+        return null;
+    }
+    // Labs    public static String getLabsByAccountId(String accountId) {
+        if (String.isBlank(accountId)) {
+            return null;
+        }
+        for (VCC_Training_Mode_Data__c trainingModeData : new VCC_TrainingModeDataSelector().selectByAccountId(new Set<Id>{
+            accountId        })) {
+            if (trainingModeData.Type__c.equalsIgnoreCase('Labs')) {
+                return trainingModeData.Data__c;
+            }
+        }
+        return null;
+    }
+    // Medications    public static String getMedicationsByAccountId(String accountId) {
+        if (String.isBlank(accountId)) {
+            return null;
+        }
+        for (VCC_Training_Mode_Data__c trainingModeData : new VCC_TrainingModeDataSelector().selectByAccountId(new Set<Id>{
+            accountId        })) {
+            if (trainingModeData.Type__c.equalsIgnoreCase('Medications')) {
+                return trainingModeData.Data__c;
+            }
+        }
+        return null;
+    }
+    public static void refillMedications(List<VCC_ImpHttpRequestAction.RefillRequest> refillRequests) {
+        fflib_ISObjectUnitOfWork uow = new fflib_SObjectUnitOfWork(new List<Schema.SObjectType>{
+            VCC_Training_Mode_Data__c.SObjectType        });
+        refillMedications(refillRequests, uow);
+        uow.commitWork();
+    }
+    public static void refillMedications(List<VCC_ImpHttpRequestAction.RefillRequest> refillRequests, fflib_ISObjectUnitOfWork uow) {
+        VCC_Training_Mode_Data__c trainingModeData;
+        for (VCC_Training_Mode_Data__c relatedData : new VCC_TrainingModeDataSelector().selectByAccountId(new Set<Id>{
+            refillRequests[0].recordId        })) {
+            if (relatedData.Type__c.equalsIgnoreCase('Medications')) {
+                trainingModeData = relatedData;
+            }
+        }
+        List<String> prescriptionIds = new List<String>();
+        for (VCC_ImpHttpRequestAction.RefillRequest refillRequest : refillRequests) {
+            prescriptionIds.add(refillRequest.prescriptionId);
+        }
+        trainingModeDataDomain.refillMedications(trainingModeData, prescriptionIds);
+        uow.registerDirty(trainingModeData);
+    }
+    // Orders    public static String getOrdersByAccountId(String accountId) {
+        if (String.isBlank(accountId)) {
+            return null;
+        }
+        for (VCC_Training_Mode_Data__c trainingModeData : new VCC_TrainingModeDataSelector().selectByAccountId(new Set<Id>{
+            accountId        })) {
+            if (trainingModeData.Type__c.equalsIgnoreCase('Orders')) {
+                return trainingModeData.Data__c;
+            }
+        }
+        return null;
+    }
+    // PACT Data    public static String getPACTDataByAccountId(String accountId) {
+        if (String.isBlank(accountId)) {
+            return null;
+        }
+        for (VCC_Training_Mode_Data__c trainingModeData : new VCC_TrainingModeDataSelector().selectByAccountId(new Set<Id>{
+            accountId        })) {
+            if (trainingModeData.Type__c.equalsIgnoreCase('PACT')) {
+                return trainingModeData.Data__c;
+            }
+        }
+        return null;
+    }
+    // Problems    public static String getProblemsByAccountId(String accountId) {
+        if (String.isBlank(accountId)) {
+            return null;
+        }
+        for (VCC_Training_Mode_Data__c trainingModeData : new VCC_TrainingModeDataSelector().selectByAccountId(new Set<Id>{
+            accountId        })) {
+            if (trainingModeData.Type__c.equalsIgnoreCase('Problems')) {
+                return trainingModeData.Data__c;
+            }
+        }
+        return null;
+    }
+    // Progress Notes    public static String getProgressNotesByAccountId(String accountId) {
+        if (String.isBlank(accountId)) {
+            return null;
+        }
+        for (VCC_Training_Mode_Data__c trainingModeData : new VCC_TrainingModeDataSelector().selectByAccountId(new Set<Id>{
+            accountId        })) {
+            if (trainingModeData.Type__c.equalsIgnoreCase('Progress Notes')) {
+                return trainingModeData.Data__c;
+            }
+        }
+        return null;
+    }
+    public static void signProgressNote(Id progressNoteId) {
+        fflib_ISObjectUnitOfWork uow = new fflib_SObjectUnitOfWork(new List<Schema.SObjectType>{
+            VCC_Training_Mode_Data__c.SObjectType        });
+        signProgressNote(progressNoteId, uow);
+        uow.commitWork();
+    }
+    public static void signProgressNote(Id progressNoteId, fflib_ISObjectUnitOfWork uow) {
+        // Todo: Sign Progress Notes: Needs to be implemented    }
+    // VetInfo    public static String getVetInfoByAccountId(String accountId) {
+        if (String.isBlank(accountId)) {
+            return null;
+        }
+        try {
+            String rawData;
+            for (VCC_Training_Mode_Data__c trainingModeData : new VCC_TrainingModeDataSelector().selectByAccountId(new Set<Id>{
+                accountId            })) {
+                if (trainingModeData.Type__c.equalsIgnoreCase('Vet Info')) {
+                    rawData = trainingModeData.Data__c;
+                }
+            }
+            VCC_MPIParser responseData = (VCC_MPIParser) JSON.deserialize(
+                rawData.replace('"null"', 'null').replace('"true"', 'true').replace('"false"', 'false'), // Swapping "null" string for null literals                System.Type.forName('VCC_MPIParser')
+            );
+            VCC_MPIHelper.getFacilityNames(responseData.vetsV1[0].mvi.medicalCenterFacilities);
+            VCC_MPIHelper.updateVAProfile(accountId, responseData.vetsV1[0].vaProfileV1);
+            VCC_MPIHelper.updateESR(accountId, responseData.vetsV1[0].ee);
+            System.debug(responseData);
+            return JSON.serialize(responseData);
+        } catch (Exception e) {
+            log_LogService.log('VCC_TrainingModeService.getVetInfo()', log_LogService.LogType.ERROR, e);
+        } finally {
+            log_LogService.publish();
+        }
+        return null;
+    }
+    // Visits    public static String getVisitsByAccountId(String accountId) {
+        if (String.isBlank(accountId)) {
+            return null;
+        }
+        for (VCC_Training_Mode_Data__c trainingModeData : new VCC_TrainingModeDataSelector().selectByAccountId(new Set<Id>{
+            accountId        })) {
+            if (trainingModeData.Type__c.equalsIgnoreCase('Visits')) {
+                return trainingModeData.Data__c;
+            }
+        }
+        return null;
+    }
+    // Vitals    public static String getVitalsByAccountId(String accountId) {
+        if (String.isBlank(accountId)) {
+            return null;
+        }
+        for (VCC_Training_Mode_Data__c trainingModeData : new VCC_TrainingModeDataSelector().selectByAccountId(new Set<Id>{
+            accountId        })) {
+            if (trainingModeData.Type__c.equalsIgnoreCase('Vitals')) {
+                return trainingModeData.Data__c;
+            }
+        }
+        return null;
+    }
+    // Training Data    public static Boolean isTrainingModeEnabled() {
+        // Disable training mode if it is PROD or PERF environment. Allow tests to run to keep the ability to cover Training Mode code        VCC_Org_Settings__mdt orgSettings = new VCC_OrgSettingsSelector().selectByOrgId(UserInfo.getOrganizationId());
+        if (orgSettings != null && orgSettings.vccType__c.equalsIgnoreCase('PRODUCTION') && !Test.isRunningTest()) {
+            return false;
+        }
+        // Training Mode is enabled, does the user have a valid training mode permission set?        return (VCC_SecurityService.hasPermissionSet(UserInfo.getUserId(), 'VCC_Trainee') || VCC_SecurityService.hasPermissionSet(UserInfo.getUserId(), 'VCC_Trainer'));
+    }
+    public static void resetTrainingDataForUsers(Set<Id> userIds) {
+        fflib_ISObjectUnitOfWork uow = new fflib_SObjectUnitOfWork(new List<Schema.SObjectType>{
+            Account.SObjectType, Contact.SObjectType, Case.SObjectType, VCC_Training_Mode_Data__c.SObjectType, VCC_Progress_Note__c.SObjectType, VCC_Addendum__c.SObjectType        });
+        resetTrainingDataForUsers(userIds, uow);
+        uow.commitWork();
+    }
+    public static void resetTrainingDataForUsers(Set<Id> userIds, fflib_ISObjectUnitOfWork uow) {
+        deleteTrainingDataForUsers(userIds);
+        createTrainingDataForUsers(userIds, uow);
+    }
+    private static void deleteTrainingDataForUsers(Set<Id> userIds) {
+        List<Account> accounts = new VCC_TrainingModeAccountSelector().selectTrainingAccountsByOwnerIdWithCases(userIds);
+        Set<Id> accountIds = new Set<Id>();
+        for (Account account : accounts) {
+            accountIds.add(account.Id);
+        }
+        List<VCC_Signers__c> signers = [SELECT Id FROM VCC_Signers__c WHERE VCC_Progress_Note__r.VCC_Case__r.OwnerId IN :accountIds];
+        delete signers;
+        List<VCC_Addendum__c> addendums = [SELECT Id FROM VCC_Addendum__c WHERE VCC_Related_Note__r.VCC_Case__r.AccountId IN :accountIds];
+        delete addendums;
+        List<VCC_Progress_Note__c> progressNotes = [SELECT Id, VCC_Signed__c FROM VCC_Progress_Note__c WHERE VCC_Case__r.AccountId IN :accountIds];
+        delete progressNotes;
+        List<Case> cases = [SELECT Id FROM Case WHERE AccountId IN :accountIds];
+        delete cases;
+        delete accounts;
+    }
+    private static void createTrainingDataForUsers(Set<Id> userIds, fflib_ISObjectUnitOfWork uow) {
+        List<User> users = new VCC_TrainingModeUserSelector().selectById(userIds);
+        List<StaticResource> trainingModeDataTemplates = new VCC_TrainingModeDataTemplateSelector().selectAll();
+        createMasterTrainingData(trainingModeDataTemplates, uow);
+        for (User user : users) {
+            createTrainingDataForUser(user, trainingModeDataTemplates, uow);
+        }
+    }
+    private static void createMasterTrainingData(List<StaticResource> trainingModeDataTemplates, fflib_ISObjectUnitOfWork uow) {
+        List<Account> existingMasterAccounts = new VCC_TrainingModeAccountSelector().selectMasterTrainingModeAccounts();
+        for (StaticResource trainingModeDataTemplate : trainingModeDataTemplates) {
+            VCC_TrainingModeAccount trainingModeAccount = (VCC_TrainingModeAccount) JSON.deserialize(trainingModeDataTemplate.Body.toString(), VCC_TrainingModeAccount.class);
+            Account masterAccount = accountDomain.createMasterPersonAccount(existingMasterAccounts, trainingModeAccount);
+            uow.registerUpsert(masterAccount);
+            List<VCC_Training_Mode_Data__c> trainingModeDataSObjs = trainingModeDataDomain.createMasterTrainingModeData(trainingModeAccount);
+            uow.registerNew(trainingModeDataSObjs);
+            for (VCC_Training_Mode_Data__c trainingModeDataSObj : trainingModeDataSObjs) {
+                uow.registerRelationship(trainingModeDataSObj, VCC_Training_Mode_Data__c.Account__c, masterAccount);
+            }
+        }
+    }
+    private static void createTrainingDataForUser(User user, List<StaticResource> trainingModeDataTemplates, fflib_ISObjectUnitOfWork uow) {
+        for (StaticResource trainingModeDataTemplate : trainingModeDataTemplates) {
+            VCC_TrainingModeAccount trainingModeAccount = (VCC_TrainingModeAccount) JSON.deserialize(trainingModeDataTemplate.Body.toString(), VCC_TrainingModeAccount.class);
+            Account account = accountDomain.createPersonAccount(user, trainingModeAccount);
+            uow.registerNew(account);
+            List<VCC_Training_Mode_Data__c> trainingModeDataSObjs = trainingModeDataDomain.createTrainingModeData(user, trainingModeAccount);
+            uow.registerNew(trainingModeDataSObjs);
+            for (VCC_Training_Mode_Data__c trainingModeDataSObj : trainingModeDataSObjs) {
+                uow.registerRelationship(trainingModeDataSObj, VCC_Training_Mode_Data__c.Account__c, account);
+            }
+        }
+    }
+}
